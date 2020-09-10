@@ -63,10 +63,13 @@ int main(int argc, char *argv[])
     printf("Start receive file: %s from %s\n", filename, inet_ntop(AF_INET, &clientaddr.sin_addr, addr, INET_ADDRSTRLEN));
     writefile(connfd, fp);
     printf("Receive Success, NumBytes = %ld\n", total);
-    
 
     fclose(fp);
     close(connfd);
+
+    char image_print[BUFFSIZE] = "eog ";
+    strcat(image_print, filename);
+    system(image_print); // Show window with image
     return 0;
 }
 
