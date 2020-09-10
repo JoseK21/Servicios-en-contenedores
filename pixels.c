@@ -80,6 +80,11 @@ int main( int argc, char **argv ) {
     }
     Rgb *pixel = (Rgb*) malloc( sizeof(Rgb) );
     int read, j;
+
+    FILE * fp_output;
+   /* open the file for writing*/
+    fp_output = fopen ("output.txt","w");
+
     for( j=0; j<info.height; j++ ) {
         /* printf( "------ Row %d\n", j+1 ); */
         read = 0;
@@ -92,17 +97,18 @@ int main( int argc, char **argv ) {
             R = R + pixel->red;
             G = G + pixel->green;
             B = B + pixel->blue;
-            /* printf( "Pixel %d: %3d %3d %3d\n", i+1, pixel->red, pixel->green, pixel->blue ); */
+            /* printf( "Pixel %d: %d %3d %3d\n", i+1, pixel->red, pixel->green, pixel->blue );
+            fprintf (fp_output, "Pixel %d: %d %3d %3d\n", i+1, pixel->red, pixel->green, pixel->blue); */
         }
         if( read % 4 != 0 ) {
             read = 4 - (read%4);
-            printf( "Padding: %d bytes\n", read );
+            /* printf( "Padding: %d bytes\n", read ); */
             fread( pixel, read, 1, inFile );
         }
     }
 
     printf( "Done.\n" );
-    printf( "COLORES: %3d %3d %3d\n", R, G, B );
+    /* printf( "COLORES: %d %d %d\n", R, G, B ); */
 
     if ( R >= G && R >= B)
     {
@@ -120,10 +126,11 @@ int main( int argc, char **argv ) {
 
     fclose(inFile);
     fclose(outFile);
+    fclose (fp_output);
 
-    printf( "\nBMP-Info:\n" );
+    printf( "BMP-Info:\n" );
     printf( "Width x Height: %i x %i\n", info.width, info.height );
-    printf( "Depth: %i\n", (int)info.bitDepth );
+    /* printf( "Depth: %i\n", (int)info.bitDepth ); */
 
     return 0;
 
