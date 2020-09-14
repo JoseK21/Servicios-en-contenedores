@@ -1,19 +1,59 @@
+#pragma pack(2)
+
+
+typedef struct
+{
+    char signature[2];
+    unsigned int fileSize;
+    unsigned int reserved;
+    unsigned int offset;
+} BmpHeader;
+
+typedef struct
+{
+    unsigned int headerSize;
+    unsigned int width;
+    unsigned int height;
+    unsigned short planeCount;
+    unsigned short bitDepth;
+    unsigned int compression;
+    unsigned int compressedImageSize;
+    unsigned int horizontalResolution;
+    unsigned int verticalResolution;
+    unsigned int numColors;
+    unsigned int importantColors;
+
+} BmpImageInfo;
+
+typedef struct
+{
+    unsigned char blue;
+    unsigned char green;
+    unsigned char red;
+    //unsigned char reserved; Removed for convenience in fread; info.bitDepth/8 doesn't seem to work for some reason
+} Rgb;
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <netinet/ip.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include "transfer.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 
 struct threeNum
 {
    int n1, n2, n3;
 };
 
+
+void pixel_mat(char *img );
 void writefile(int sockfd, FILE *fp);
 ssize_t total=0;
 int main(int argc, char *argv[]) 
@@ -73,12 +113,7 @@ int main(int argc, char *argv[])
 
     fclose(fp);
     close(connfd);
-
-    char image_print[BUFFSIZE] = "eog ";
-    strcat(image_print, filename);
-    system(image_print); // Show window with image
-
-    
+   
 
     int n;
     struct threeNum num;
@@ -93,10 +128,13 @@ int main(int argc, char *argv[])
 
     for(n = 1; n < 5; ++n)
     {
-        fread(&num, sizeof(struct threeNum), 1, fptr); 
-        printf("n1: %d\tn2: %d\tn3: %d\n", num.n1, num.n2, num.n3);
+        fread(&num, sizeof(struct threeNum), 1, fptr);
     }
     fclose(fptr); 
+    pixel_mat(filename);
+    char image_print[BUFFSIZE] = "eog ";
+    strcat(image_print, filename);
+    system(image_print); // Show window with image
 
     return 0;
 }
@@ -121,4 +159,106 @@ void writefile(int sockfd, FILE *fp)
         }
         memset(buff, 0, MAX_LINE);
     }
+}
+
+
+void pixel_mat(char *img ) {
+
+    FILE *inFile;
+    BmpHeader header;
+    BmpImageInfo info;
+    Rgb *palette;
+    int i = 0;
+
+    int R, G, B = 0;
+
+    printf( "Opening file %s for reading.\n", img );
+
+    inFile = fopen( img, "rb" );
+    if( !inFile ) {
+        printf( "Error opening file %s.\n", img );
+        return -1;
+    }
+
+    if( fread(&header, 1, sizeof(BmpHeader), inFile) != sizeof(BmpHeader) ) {
+        printf( "Error reading bmp header.\n" );
+        return -1;
+    }
+
+    if( fread(&info, 1, sizeof(BmpImageInfo), inFile) != sizeof(BmpImageInfo) ) {
+        printf( "Error reading image info.\n" );
+        return -1;
+    }
+
+    if( info.numColors > 0 ) {
+        printf( "Reading palette.\n" );
+        palette = (Rgb*)malloc(sizeof(Rgb) * info.numColors);
+        if( fread(palette, sizeof(Rgb), info.numColors, inFile) != (info.numColors * sizeof(Rgb)) ) {
+            printf( "Error reading palette.\n" );
+            return -1; // error
+        }
+    }
+
+/*     printf( "Opening file %s for writing.\n", argv[2] );
+    FILE *outFile = fopen( argv[2], "wb" );
+    if( !outFile ) {
+        printf( "Error opening outputfile.\n" );
+        return -1;
+    } */
+    Rgb *pixel = (Rgb*) malloc( sizeof(Rgb) );
+    int read, j;
+    int total_pixcel = info.height * info.width;
+    /* FILE * fp_output; */
+   /* open the file for writing*/
+    /* fp_output = fopen ("output.txt","w"); */
+
+    for( j=0; j<info.height; j++ ) {
+        /* printf( "------ Row %d\n", j+1 ); */
+        read = 0;
+        for( i=0; i<info.width; i++ ) {
+            if( fread(pixel, 1, sizeof(Rgb), inFile) != sizeof(Rgb) ) {
+                printf( "Error reading pixel!\n" );
+                return -1;
+            }
+            read += sizeof(Rgb);
+            R = R + pixel->red;
+            G = G + pixel->green;
+            B = B + pixel->blue;
+            printf( "Pixel %d: %d %3d %3d\n", i+1, pixel->red, pixel->green, pixel->blue );
+            /* fprintf (fp_output, "Pixel %d: %d %3d %3d\n", i+1, pixel->red, pixel->green, pixel->blue); */
+        }
+        if( read % 4 != 0 ) {
+            read = 4 - (read%4);
+            /* printf( "Padding: %d bytes\n", read ); */
+            fread( pixel, read, 1, inFile );
+        }
+    }
+
+    printf( "Done.\n" );
+    /* printf( "COLORES: %d %d %d\n", R, G, B ); */
+
+    if ( R >= G && R >= B)
+    {
+        printf( "--- > RED.\n%d\n", R / total_pixcel);
+    }
+    else if ( G >= R && G >= B)
+    {
+        printf( "--- > GREEN.\n%d\n", G / total_pixcel);
+    }
+    else
+    {
+        printf( "--- > BLUE.\n%d\n", B / total_pixcel);
+    }
+    
+
+    fclose(inFile);
+/*     fclose(outFile);
+    fclose (fp_output); */
+
+    printf( "BMP-Info:\n" );
+    printf( "Width x Height: %i x %i\n", info.width, info.height );
+    /* printf( "Depth: %i\n", (int)info.bitDepth ); */
+
+    return 0;
+
 }
