@@ -163,10 +163,8 @@ void pixel_mat(char *img)
     BmpHeader header;
     BmpImageInfo info;
     Rgb *palette;
-    Rgb *p;
 
     int i = 0;
-
     int R = 0;
     int G = 0;
     int B = 0;
@@ -175,16 +173,19 @@ void pixel_mat(char *img)
     if (!inFile)
     {
         printf("Error opening file %s.\n", img);
+        exit(1);
     }
 
     if (fread(&header, 1, sizeof(BmpHeader), inFile) != sizeof(BmpHeader))
     {
         puts("Error reading bmp header.\n");
+        exit(1);
     }
 
     if (fread(&info, 1, sizeof(BmpImageInfo), inFile) != sizeof(BmpImageInfo))
     {
         puts("Error reading image info.\n");
+        exit(1);
     }
 
     if (info.numColors > 0)
@@ -194,14 +195,12 @@ void pixel_mat(char *img)
         if (fread(palette, sizeof(Rgb), info.numColors, inFile) != (info.numColors * sizeof(Rgb)))
         {
             puts("Error reading palette.\n");
+            exit(1);
         }
     }
 
     Rgb *pixel = (Rgb *)malloc(sizeof(Rgb));
     int read, j;
-    int total_pixcel = info.height * info.width;
-
-    int p_p = 0;
 
     for (j = 0; j < info.height; j++)
     {
@@ -212,7 +211,6 @@ void pixel_mat(char *img)
             {
                 puts("Error reading pixel!\n");
                 exit(1);
-                return -1;
             }
             read += sizeof(Rgb);
 
