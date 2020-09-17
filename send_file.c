@@ -12,6 +12,16 @@ void sendfile(FILE *fp, int sockfd);
 ssize_t total=0;
 int main(int argc, char* argv[])
 {
+    char my_ip[16];
+    printf("Enter your my_ip\n");
+    scanf("%s",my_ip);
+    printf("IP %s\n",my_ip);
+
+    char path_img[100];
+    printf("Enter your path_img\n");
+    scanf("%s",path_img);
+    printf("Path Image %s\n",path_img);
+
     if (argc != 3) 
     {
         perror("usage:send_file filepath <IPaddress>");
@@ -29,7 +39,7 @@ int main(int argc, char* argv[])
     memset(&serveraddr, 0, sizeof(serveraddr));
     serveraddr.sin_family = AF_INET;
     serveraddr.sin_port = htons(SERVERPORT);
-    if (inet_pton(AF_INET, argv[2], &serveraddr.sin_addr) < 0)
+    if (inet_pton(AF_INET, my_ip, &serveraddr.sin_addr) < 0)
     {
         perror("IPaddress Convert Error");
         exit(1);
@@ -41,7 +51,7 @@ int main(int argc, char* argv[])
         exit(1);
     }
     
-    char *filename = basename(argv[1]); 
+    char *filename = basename(path_img); 
     if (filename == NULL)
     {
         perror("Can't get filename");
@@ -56,7 +66,7 @@ int main(int argc, char* argv[])
         exit(1);
     }
     
-    FILE *fp = fopen(argv[1], "rb");
+    FILE *fp = fopen(path_img, "rb");
     if (fp == NULL) 
     {
         perror("Can't open file");
