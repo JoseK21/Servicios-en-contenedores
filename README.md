@@ -15,3 +15,6 @@ File transmission over TCP sockets in Linux system.
 
     gcc pixels.c
     ./a.out plus.bmp out.txt
+
+### To verify the predominant color use 
+    https://www.imgonline.com.ua/eng/get-dominant-colors-result.php
