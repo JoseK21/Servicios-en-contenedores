@@ -21,7 +21,6 @@ typedef struct
     unsigned int verticalResolution;
     unsigned int numColors;
     unsigned int importantColors;
-
 } BmpImageInfo;
 
 typedef struct
@@ -29,8 +28,12 @@ typedef struct
     unsigned char blue;
     unsigned char green;
     unsigned char red;
-    //unsigned char reserved; Removed for convenience in fread; info.bitDepth/8 doesn't seem to work for some reason
 } Rgb;
+
+struct threeNum
+{
+    int n1, n2, n3;
+};
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,15 +43,10 @@ typedef struct
 #include <netinet/ip.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include "print_color.h"
 #include "transfer.h"
-
 #include <stdlib.h>
 #include <stdio.h>
-
-struct threeNum
-{
-    int n1, n2, n3;
-};
 
 void pixel_mat(char *img);
 void writefile(int sockfd, FILE *fp);
@@ -65,8 +63,8 @@ int main(int argc, char *argv[])
     struct sockaddr_in clientaddr, serveraddr;
     memset(&serveraddr, 0, sizeof(serveraddr));
     serveraddr.sin_family = 2;
-    serveraddr.sin_addr.s_addr = inet_addr("192.168.1.149"); // htonl(INADDR_ANY);
-    serveraddr.sin_port = htons(8877);                       //htons(SERVERPORT)
+    serveraddr.sin_addr.s_addr = inet_addr("192.168.1.149");
+    serveraddr.sin_port = htons(8877);
 
     if (bind(sockfd, (const struct sockaddr *)&serveraddr, sizeof(serveraddr)) == -1)
     {
@@ -74,7 +72,7 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    if (listen(sockfd, 7788) == -1) //listen(sockfd, LINSTENPORT)
+    if (listen(sockfd, 7788) == -1)
     {
         perror("Listen Error");
         exit(1);
@@ -82,7 +80,9 @@ int main(int argc, char *argv[])
 
     socklen_t addrlen = sizeof(clientaddr);
 
-    printf("Server : Running\n");
+    printf("\nServer: ");
+    printc("Running\n", 3);
+
     int connfd;
     int running = 1;
     while (running)
@@ -92,19 +92,9 @@ int main(int argc, char *argv[])
             perror("accept");
             exit(1);
         }
-        else
-        {
-            puts("New conection established");
-        }
-        /* if (connfd == -1)
-        {
-            perror("Connect Error");
-            exit(1);
-        }
-        close(sockfd); */
 
-        char filename[4096] = {0};                 //[BUFFSIZE]
-        if (recv(connfd, filename, 4096, 0) == -1) //recv(connfd, filename, BUFFSIZE, 0)
+        char filename[4096] = {0};
+        if (recv(connfd, filename, 4096, 0) == -1)
         {
             perror("Can't receive filename");
             exit(1);
@@ -117,10 +107,9 @@ int main(int argc, char *argv[])
             exit(1);
         }
 
-        char addr[16];                                                                                      //char addr[INET_ADDRSTRLEN];
-        printf("Start receive file: %s from %s\n", filename, inet_ntop(2, &clientaddr.sin_addr, addr, 16)); //inet_ntop(AF_INET,
+        char addr[16];
+        printf("\nFile name: %s \nFrom %s\n", filename, inet_ntop(2, &clientaddr.sin_addr, addr, 16));
         writefile(connfd, fp);
-        /* printf("Receive Success, NumBytes = %ld\n", total); */
 
         fclose(fp);
         close(connfd);
@@ -132,8 +121,6 @@ int main(int argc, char *argv[])
         if ((fptr = fopen(filename, "rb")) == NULL)
         {
             printf("Error! opening file");
-
-            // Program exits if the file pointer returns NULL.
             exit(1);
         }
 
@@ -143,18 +130,15 @@ int main(int argc, char *argv[])
         }
         fclose(fptr);
         pixel_mat(filename);
-        /* char image_print[BUFFSIZE] = "eog ";
-        strcat(image_print, filename);
-        system(image_print); // Show window with image */
     }
-
+    close(sockfd);
     return 0;
 }
 
 void writefile(int sockfd, FILE *fp)
 {
     ssize_t n;
-    char buff[4096] = {0}; //buff[MAX_LINE]
+    char buff[4096] = {0};
     while ((n = recv(sockfd, buff, 4096, 0)) > 0)
     {
         total += n;
@@ -187,25 +171,20 @@ void pixel_mat(char *img)
     int G = 0;
     int B = 0;
 
-    /* printf( "Opening file %s for reading.\n", img ); */
-
     inFile = fopen(img, "rb");
     if (!inFile)
     {
         printf("Error opening file %s.\n", img);
-        /* return -1; */
     }
 
     if (fread(&header, 1, sizeof(BmpHeader), inFile) != sizeof(BmpHeader))
     {
         puts("Error reading bmp header.\n");
-        /* return -1; */
     }
 
     if (fread(&info, 1, sizeof(BmpImageInfo), inFile) != sizeof(BmpImageInfo))
     {
         puts("Error reading image info.\n");
-        /* return -1; */
     }
 
     if (info.numColors > 0)
@@ -215,7 +194,6 @@ void pixel_mat(char *img)
         if (fread(palette, sizeof(Rgb), info.numColors, inFile) != (info.numColors * sizeof(Rgb)))
         {
             puts("Error reading palette.\n");
-            /* return -1; */ // error
         }
     }
 
@@ -234,7 +212,6 @@ void pixel_mat(char *img)
             {
                 puts("Error reading pixel!\n");
                 exit(1);
-
                 return -1;
             }
             read += sizeof(Rgb);
@@ -251,7 +228,6 @@ void pixel_mat(char *img)
             {
                 B = B + 1;
             }
-
         }
         if (read % 4 != 0)
         {
@@ -260,24 +236,19 @@ void pixel_mat(char *img)
         }
     }
 
+    printf("Image > ");
     if (R >= G && R >= B)
     {
-        puts("--- > RED.\n");
+        printc("RED.\n", 1);
     }
     else if (G >= R && G >= B)
     {
-        puts("--- > GREEN.\n");
+        printc("GREEN.\n", 3);
     }
     else
     {
-        puts("--- > BLUE.\n");
+        printc("BLUE.\n", 2);
     }
 
     fclose(inFile);
-    /*     fclose(outFile);
-    fclose (fp_output); */
-
-    /* printf( "BMP-Info:\n" );
-    printf( "Width x Height: %i x %i\n", info.width, info.height ); */
-    /* printf( "Depth: %i\n", (int)info.bitDepth ); */
 }
