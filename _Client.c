@@ -22,11 +22,11 @@ int main(int argc, char* argv[])
     scanf("%s",path_img);
     printf("Path Image %s\n",path_img);
 
-    if (argc != 3) 
+/*     if (argc != 3) 
     {
         perror("usage:send_file filepath <IPaddress>");
         exit(1);
-    }
+    } */
 
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) 

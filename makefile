@@ -1,8 +1,8 @@
-all : send_file receive_file
+all : _Client _Server
 .PHONY : all
-send_file : send_file.c transfer.h
-	gcc -Wall -O2 send_file.c -o send_file
-receive_file : receive_file.c transfer.h
-	gcc -Wall -O2 receive_file.c -o receive_file
+_Client : _Client.c transfer.h
+	gcc -Wall -O2 _Client.c -o client
+_Server : _Server.c transfer.h
+	gcc -Wall -O2 _Server.c -o server
 clean :
-	rm send_file receive_file
+	rm client server
