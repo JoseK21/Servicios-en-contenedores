@@ -3,6 +3,6 @@ all : _Client _Server
 _Client : _Client.c
 	gcc _Client.c -o client
 _Server : _Server.c
-	gcc _Server.c -o a.out
+	gcc _Server.c -o server
 clean :
-	rm client a.out
+	rm client server

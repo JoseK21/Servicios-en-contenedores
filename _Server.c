@@ -262,12 +262,15 @@ void pixel_mat(char *img)
 
 int createFiles()
 {
-    FILE *fp = fopen("Red", "r");
+    char root_path[] = "server-storage";
+    FILE *fp = fopen("server-storage/R", "r");
     if (!fp)
     {
-        system("mkdir Red");
-        system("mkdir Green");
-        system("mkdir Blue");
+        system("mkdir server-storage");
+        system("cd server-storage");
+        system("mkdir R");
+        system("mkdir G");
+        system("mkdir B");
         system("mkdir 'Not trusted'");
         return 1;
     }
@@ -280,18 +283,18 @@ int move_file(char *sourcePath, int folder)
 
     if (folder == 1)
     {
-        strcat(destPath, "Red/");
+        strcat(destPath, "R/");
         strcat(destPath, sourcePath);
     }
     else if (folder == 2)
     {
-        strcat(destPath, "Green/");
+        strcat(destPath, "G/");
         strcat(destPath, sourcePath);
     }
 
     else if (folder == 3)
     {
-        strcat(destPath, "Blue/");
+        strcat(destPath, "B/");
         strcat(destPath, sourcePath);
     }
 
@@ -329,7 +332,7 @@ int read_ips()
 
             puts(line); /* write the line */
             int x = strcmp(line, "1.1.1.149");
-            printf("%d\n", x); // prints 1       
+            printf("%d\n", x); // prints 1
 
             if (x == 0)
             {
@@ -349,34 +352,44 @@ int read_ips()
     return 0;
 }
 
-
-void printc(char *msg, int color){
-  if (color == 1){
-    printf("\033[1;31m");
-    printf("%s",msg);
-    printf("\033[0m");
-  } else if (color == 2){
-    printf("\033[1;34m");
-    printf("%s",msg);
-    printf("\033[0m");
-  } else if (color == 3){
-    printf("\033[1;32m");
-    printf("%s",msg);
-    printf("\033[0m");
-  }else if (color == 4){
-    printf("\033[1;33m");
-    printf("%s",msg);
-    printf("\033[0m");
-  }else if (color == 5){
-    printf("\033[1;35m");
-    printf("%s",msg);
-    printf("\033[0m");
-  }else if (color == 6){
-    printf("\033[1;36m");
-    printf("%s",msg);
-    printf("\033[0m");
-  }
+void printc(char *msg, int color)
+{
+    if (color == 1)
+    {
+        printf("\033[1;31m");
+        printf("%s", msg);
+        printf("\033[0m");
+    }
+    else if (color == 2)
+    {
+        printf("\033[1;34m");
+        printf("%s", msg);
+        printf("\033[0m");
+    }
+    else if (color == 3)
+    {
+        printf("\033[1;32m");
+        printf("%s", msg);
+        printf("\033[0m");
+    }
+    else if (color == 4)
+    {
+        printf("\033[1;33m");
+        printf("%s", msg);
+        printf("\033[0m");
+    }
+    else if (color == 5)
+    {
+        printf("\033[1;35m");
+        printf("%s", msg);
+        printf("\033[0m");
+    }
+    else if (color == 6)
+    {
+        printf("\033[1;36m");
+        printf("%s", msg);
+        printf("\033[0m");
+    }
 }
 
 // configuracion.config
-
