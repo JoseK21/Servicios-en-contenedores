@@ -50,9 +50,14 @@ struct threeNum
 
 void pixel_mat(char *img);
 void writefile(int sockfd, FILE *fp);
+int createFiles();
+int move_file(char *sourcePath, int folder);
+
 ssize_t total = 0;
 int main(int argc, char *argv[])
 {
+    createFiles();
+
     int sockfd = socket(2, SOCK_STREAM, 0);
     if (sockfd == -1)
     {
@@ -238,15 +243,69 @@ void pixel_mat(char *img)
     if (R >= G && R >= B)
     {
         printc("RED.\n", 1);
+        move_file(img, 1);
     }
     else if (G >= R && G >= B)
     {
         printc("GREEN.\n", 3);
+        move_file(img, 2);
     }
     else
     {
         printc("BLUE.\n", 2);
+        move_file(img, 3);
     }
 
     fclose(inFile);
+}
+
+int createFiles()
+{
+    FILE *fp = fopen("Red", "r");
+    if (!fp)
+    {
+        system("mkdir Red");
+        system("mkdir Green");
+        system("mkdir Blue");
+        system("mkdir 'Not trusted'");
+        return 1;
+    }
+    return 0;
+}
+
+int move_file(char *sourcePath, int folder)
+{
+    char destPath[100] = "";
+
+    if (folder == 1)
+    {
+        strcat(destPath, "Red/");
+        strcat(destPath, sourcePath);
+    }
+    else if (folder == 2)
+    {
+        strcat(destPath, "Green/");
+        strcat(destPath, sourcePath);
+    }
+
+    else if (folder == 3)
+    {
+        strcat(destPath, "Blue/");
+        strcat(destPath, sourcePath);
+    }
+
+    else
+    {
+        strcat(destPath, "'Not trusted/'");
+        strcat(destPath, sourcePath);
+    }
+
+    char mv_string1[100] = "";
+    strcat(mv_string1, "mv ");
+    strcat(mv_string1, sourcePath);
+    strcat(mv_string1, " ");    
+    strcat(mv_string1, destPath);
+    system(mv_string1);
+
+    return 0;
 }
