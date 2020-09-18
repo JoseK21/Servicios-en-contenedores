@@ -51,11 +51,13 @@ struct threeNum
 void pixel_mat(char *img);
 void writefile(int sockfd, FILE *fp);
 int createFiles();
+int read_ips();
 int move_file(char *sourcePath, int folder);
 
 ssize_t total = 0;
 int main(int argc, char *argv[])
 {
+    read_ips();
     createFiles();
 
     int sockfd = socket(2, SOCK_STREAM, 0);
@@ -68,8 +70,8 @@ int main(int argc, char *argv[])
     struct sockaddr_in clientaddr, serveraddr;
     memset(&serveraddr, 0, sizeof(serveraddr));
     serveraddr.sin_family = 2;
-    serveraddr.sin_addr.s_addr = inet_addr("192.168.1.149");
-    serveraddr.sin_port = htons(8877);
+    serveraddr.sin_addr.s_addr = INADDR_ANY;
+    serveraddr.sin_port = htons(8080);
 
     if (bind(sockfd, (const struct sockaddr *)&serveraddr, sizeof(serveraddr)) == -1)
     {
@@ -303,9 +305,49 @@ int move_file(char *sourcePath, int folder)
     char mv_string1[100] = "";
     strcat(mv_string1, "mv ");
     strcat(mv_string1, sourcePath);
-    strcat(mv_string1, " ");    
+    strcat(mv_string1, " ");
     strcat(mv_string1, destPath);
     system(mv_string1);
 
     return 0;
 }
+
+int read_ips()
+{
+    static const char filename[] = "configuracion.config";
+    FILE *file = fopen(filename, "r");
+    if (file != NULL)
+    {
+        char line[128];                                /* or other suitable maximum line size */
+        while (fgets(line, sizeof line, file) != NULL) /* read a line */
+        {
+
+            int len = strlen(line);
+            if (line[len - 1] == '\n')
+            {
+                line[len - 1] = 0;
+            }
+
+            puts(line); /* write the line */
+            int x = strcmp(line, "1.1.1.149");
+            printf("%d\n", x); // prints 1       
+
+            if (x == 0)
+            {
+                puts("Permitidad\n");
+            }
+            else
+            {
+                puts("Conectadas\n");
+            }
+        }
+        fclose(file);
+    }
+    else
+    {
+        perror(filename); /* why didn't the file open? */
+    }
+    return 0;
+}
+
+// configuracion.config

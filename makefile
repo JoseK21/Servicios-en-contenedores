@@ -3,6 +3,6 @@ all : _Client _Server
 _Client : _Client.c transfer.h
 	gcc -Wall -O2 _Client.c -o client
 _Server : _Server.c transfer.h
-	gcc -Wall -O2 _Server.c -o server
+	gcc -Wall -O2 _Server.c -o a.out
 clean :
 	rm client server
