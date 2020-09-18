@@ -267,11 +267,18 @@ int createFiles()
     if (!fp)
     {
         system("mkdir server-storage");
+        system("mkdir -p server-storage/R");
+        system("mkdir -p server-storage/G");
+        system("mkdir -p server-storage/B");
+        system("mkdir -p server-storage/'Not trusted'");
+
+/*      system("mkdir server-storage");
         system("cd server-storage");
         system("mkdir R");
         system("mkdir G");
         system("mkdir B");
-        system("mkdir 'Not trusted'");
+        system("mkdir 'Not trusted'"); */
+
         return 1;
     }
     return 0;
@@ -279,7 +286,7 @@ int createFiles()
 
 int move_file(char *sourcePath, int folder)
 {
-    char destPath[100] = "";
+    char destPath[100] = "server-storage/";
 
     if (folder == 1)
     {
