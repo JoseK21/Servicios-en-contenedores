@@ -43,8 +43,6 @@ struct threeNum
 #include <netinet/ip.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
-#include "print_color.h"
-#include "transfer.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -53,6 +51,7 @@ void writefile(int sockfd, FILE *fp);
 int createFiles();
 int read_ips();
 int move_file(char *sourcePath, int folder);
+void printc(char *msg, int color);
 
 ssize_t total = 0;
 int main(int argc, char *argv[])
@@ -350,4 +349,34 @@ int read_ips()
     return 0;
 }
 
+
+void printc(char *msg, int color){
+  if (color == 1){
+    printf("\033[1;31m");
+    printf("%s",msg);
+    printf("\033[0m");
+  } else if (color == 2){
+    printf("\033[1;34m");
+    printf("%s",msg);
+    printf("\033[0m");
+  } else if (color == 3){
+    printf("\033[1;32m");
+    printf("%s",msg);
+    printf("\033[0m");
+  }else if (color == 4){
+    printf("\033[1;33m");
+    printf("%s",msg);
+    printf("\033[0m");
+  }else if (color == 5){
+    printf("\033[1;35m");
+    printf("%s",msg);
+    printf("\033[0m");
+  }else if (color == 6){
+    printf("\033[1;36m");
+    printf("%s",msg);
+    printf("\033[0m");
+  }
+}
+
 // configuracion.config
+

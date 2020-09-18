@@ -1,16 +1,19 @@
 FROM ubuntu:20.04
 
-# WORKDIR /tarea1
+# Instalacion GCC y libpng
+RUN apt-get update && \
+    apt-get -y install gcc mono-mcs && \
+    apt-get install -y libpng-dev && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN mkdir tarea1
+RUN cd home && mkdir psot1 && mkdir psot1-dstorage
 
-# COPY . /tarea1
+VOLUME /psot1-dstorage/
 
-ADD a.out /tarea1
+ADD _Server.c /home/psot1
 
-EXPOSE 8080 
-#Puerto
+RUN cd /home/psot1 && gcc _Server.c -o a.out
 
-VOLUME /tarea1/
+EXPOSE 8080
 
-CMD [ "/tarea1/a.out" ]
+CMD [ "/home/psot1/a.out" ]

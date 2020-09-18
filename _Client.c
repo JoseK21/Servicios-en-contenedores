@@ -6,10 +6,22 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
-#include "transfer.h"
-#include "print_color.h"
+
+#ifndef TRANSFER_FILE_TRANSFER_H
+#define TRANSFER_FILE_TRANSFER_H
+
+#define MAX_LINE 4096
+#define LINSTENPORT 7788
+#define SERVERPORT 8877
+#define BUFFSIZE 4096
+
+#endif //TRANSFER_FILE_TRANSFER_H
+
+
 
 void sendfile(FILE *fp, int sockfd);
+void printc(char *msg, int color);
+
 ssize_t total = 0;
 int main(int argc, char *argv[])
 {
@@ -44,7 +56,7 @@ int main(int argc, char *argv[])
         memset(&serveraddr, 0, sizeof(serveraddr));
         serveraddr.sin_family = AF_INET;
         serveraddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-        serveraddr.sin_port = htons(8888); 
+        serveraddr.sin_port = htons(8000); 
         if (inet_pton(AF_INET, argv[1], &serveraddr.sin_addr) < 0)
         {
             perror("IPaddress Convert Error");
@@ -109,3 +121,34 @@ void sendfile(FILE *fp, int sockfd)
         memset(sendline, 0, MAX_LINE);
     }
 }
+
+void printc(char *msg, int color){
+  if (color == 1){
+    printf("\033[1;31m");
+    printf("%s",msg);
+    printf("\033[0m");
+  } else if (color == 2){
+    printf("\033[1;34m");
+    printf("%s",msg);
+    printf("\033[0m");
+  } else if (color == 3){
+    printf("\033[1;32m");
+    printf("%s",msg);
+    printf("\033[0m");
+  }else if (color == 4){
+    printf("\033[1;33m");
+    printf("%s",msg);
+    printf("\033[0m");
+  }else if (color == 5){
+    printf("\033[1;35m");
+    printf("%s",msg);
+    printf("\033[0m");
+  }else if (color == 6){
+    printf("\033[1;36m");
+    printf("%s",msg);
+    printf("\033[0m");
+  }
+}
+
+// configuracion.config
+
