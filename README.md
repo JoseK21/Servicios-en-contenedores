@@ -52,3 +52,7 @@ Servicios en contenedores
 ### Pasos para limpieza
     1. eliminar los contenedores
     2. eliminar las imagenes
+
+### Estructura de configuracion.config
+    La lista de ips se separan por lineas en blanco, cada item de una lista de ips se divide unicamente por salto de linea.
+    Es necesario dejar mas de 2 saltos de lineas al final del file, ya que es necesario para determinar cuando la ip no existe en lo absoluto

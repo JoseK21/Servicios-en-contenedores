@@ -49,14 +49,13 @@ struct threeNum
 void pixel_mat(char *img);
 void writefile(int sockfd, FILE *fp);
 int createFiles();
-int read_ips();
+int read_ips(char *myIP);
 int move_file(char *sourcePath, int folder);
 void printc(char *msg, int color);
 
 ssize_t total = 0;
 int main(int argc, char *argv[])
 {
-    read_ips();
     createFiles();
 
     int sockfd = socket(2, SOCK_STREAM, 0);
@@ -97,6 +96,8 @@ int main(int argc, char *argv[])
     {
         connfd = accept(sockfd, (struct sockaddr *)&clientaddr, &addrlen);
         char *ippp = inet_ntoa(clientaddr.sin_addr);
+        int resultIP = read_ips(ippp);
+        printf("Analisis de file; %d\n", resultIP);
 
         if (connfd < 0)
         {
@@ -276,14 +277,6 @@ int createFiles()
         system("mkdir -p server-storage/G");
         system("mkdir -p server-storage/B");
         system("mkdir -p server-storage/'Not trusted'");
-
-        /*      system("mkdir server-storage");
-        system("cd server-storage");
-        system("mkdir R");
-        system("mkdir G");
-        system("mkdir B");
-        system("mkdir 'Not trusted'"); */
-
         return 1;
     }
     return 0;
@@ -326,8 +319,9 @@ int move_file(char *sourcePath, int folder)
     return 0;
 }
 
-int read_ips()
+int read_ips(char *myIP)
 {
+    int clasIP = 0;
     static const char filename[] = "configuracion.config";
     FILE *file = fopen(filename, "r");
     if (file != NULL)
@@ -342,17 +336,21 @@ int read_ips()
                 line[len - 1] = 0;
             }
 
-            puts(line); /* write the line */
-            int x = strcmp(line, "1.1.1.149");
-            printf("%d\n", x); // prints 1
+            int xx = strcmp(line, "");
+            if (xx == 0)
+            {
+                clasIP++;
+            }
+
+            int x = strcmp(line, myIP);
+            printf("Comparacion: %d\n", x); // prints 1
+
+            // SEPARA LAS IPS Y ENVIAR UN NUMERO DEPENDIENDO EL WHILE
 
             if (x == 0)
             {
-                puts("Permitidad\n");
-            }
-            else
-            {
-                puts("Conectadas\n");
+                printf("Encontrada en orden : %d \n", clasIP);
+                break;
             }
         }
         fclose(file);
@@ -361,7 +359,7 @@ int read_ips()
     {
         perror(filename); /* why didn't the file open? */
     }
-    return 0;
+    return clasIP;
 }
 
 void printc(char *msg, int color)
