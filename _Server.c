@@ -90,10 +90,15 @@ int main(int argc, char *argv[])
     printc("Running\n", 3);
 
     int connfd;
+    char buf[32];
     int running = 1;
+    int newsockfd;
     while (running)
     {
-        if ((connfd = accept(sockfd, (struct sockaddr *)&clientaddr, &addrlen)) < 0)
+        connfd = accept(sockfd, (struct sockaddr *)&clientaddr, &addrlen);
+        char *ippp = inet_ntoa(clientaddr.sin_addr);
+
+        if (connfd < 0)
         {
             perror("accept");
             exit(1);
@@ -272,7 +277,7 @@ int createFiles()
         system("mkdir -p server-storage/B");
         system("mkdir -p server-storage/'Not trusted'");
 
-/*      system("mkdir server-storage");
+        /*      system("mkdir server-storage");
         system("cd server-storage");
         system("mkdir R");
         system("mkdir G");

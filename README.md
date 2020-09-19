@@ -7,7 +7,7 @@ Servicios en contenedores
 ### Uso del sistema localmente
 
     ./server
-    ./client
+    ./client 127.0.0.1
 
 ### Para verificar el color predominante 
     https://www.imgonline.com.ua/eng/get-dominant-colors-result.php
