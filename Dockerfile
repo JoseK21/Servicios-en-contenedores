@@ -7,10 +7,7 @@ RUN apt-get update && \
 
 RUN cd home && mkdir server && mkdir server-storage && cd ..
 
-VOLUME /server-storage/
-
 ADD server /home/server
-ADD configuracion.config /home/server
 
 EXPOSE 8080
 

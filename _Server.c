@@ -45,6 +45,10 @@ struct threeNum
 #include <sys/socket.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <dirent.h>
+
+/* global variable declaration */
+int id_container;
 
 void pixel_mat(char *img);
 void writefile(int sockfd, FILE *fp);
@@ -269,43 +273,98 @@ void pixel_mat(char *img)
 int createFiles()
 {
     char root_path[] = "server-storage";
-    FILE *fp = fopen("server-storage/R", "r");
+    FILE *fp = fopen("server-storage", "r");
     if (!fp)
     {
         system("mkdir server-storage");
-        system("mkdir -p server-storage/R");
-        system("mkdir -p server-storage/G");
-        system("mkdir -p server-storage/B");
-        system("mkdir -p server-storage/'Not trusted'");
-        return 1;
     }
+
+    int container = 1;
+    while (1)
+    {
+        char snum[5];
+        char root[] = "server-storage/container-";
+
+        sprintf(snum, "%d", container);
+        strcat(root, snum);
+        puts(root);
+
+        DIR *dir = opendir(root);
+        if (dir)
+        {
+            container = container + 1;
+            closedir(dir);
+        }
+        else
+        {
+            id_container = container;
+            char fl1[] = "mkdir -p ";
+            strcat(fl1, root);
+            system(fl1);
+
+            size_t len = strlen(fl1);
+            char flR[len];
+            strcpy(flR, fl1);
+
+            char flG[len];
+            strcpy(flG, fl1);
+
+            char flB[len];
+            strcpy(flB, fl1);
+
+            char flT[len];
+            strcpy(flT, fl1);
+
+            strcat(flR, "/R");
+            system(flR);
+
+            strcat(flG, "/G");
+            system(flG);
+
+            strcat(flB, "/B");
+            system(flB);
+
+            strcat(flT, "/'Not trusted'");
+            system(flT);
+
+            break;
+        }
+    }
+
     return 0;
 }
 
 int move_file(char *sourcePath, int folder)
 {
     char destPath[100] = "server-storage/";
+    strcat(destPath, "container-");
+
+    char snum[5];
+
+    sprintf(snum, "%d", id_container);
+
+    strcat(destPath, snum);
 
     if (folder == 1)
     {
-        strcat(destPath, "R/");
+        strcat(destPath, "/R/");
         strcat(destPath, sourcePath);
     }
     else if (folder == 2)
     {
-        strcat(destPath, "G/");
+        strcat(destPath, "/G/");
         strcat(destPath, sourcePath);
     }
 
     else if (folder == 3)
     {
-        strcat(destPath, "B/");
+        strcat(destPath, "/B/");
         strcat(destPath, sourcePath);
     }
 
     else
     {
-        strcat(destPath, "'Not trusted/'");
+        strcat(destPath, "/'Not trusted/'");
         strcat(destPath, sourcePath);
     }
 
@@ -401,5 +460,3 @@ void printc(char *msg, int color)
         printf("\033[0m");
     }
 }
-
-// configuracion.config
