@@ -1,0 +1,25 @@
+
+
+make clean
+make
+docker build -t is1 .
+docker run --publish 8000:8080 -v /home/jose/Desktop/ImageStorage/:/server-storage/ --detach --name cs1 is1
+
+docker exec -it cs1 bash
+cd server-storage
+ls -R
+
+
+docker stop cs1
+docker container rm cs1
+docker rmi is1
+
+docker images
+docker container ls -a
+
+
+// 
+
+docker run --publish 8000:8080 -v /home/josek21/Desktop/ImageStorage/:/server-storage/ --detach --name cs josek21/tarea-1
+
+//

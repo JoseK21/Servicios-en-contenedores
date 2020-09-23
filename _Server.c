@@ -55,6 +55,7 @@ void writefile(int sockfd, FILE *fp);
 int createFiles();
 int read_ips(char *myIP);
 int move_file(char *sourcePath, int folder);
+void no_trusted(char *img);
 void printc(char *msg, int color);
 
 ssize_t total = 0;
@@ -99,53 +100,72 @@ int main(int argc, char *argv[])
     while (running)
     {
         connfd = accept(sockfd, (struct sockaddr *)&clientaddr, &addrlen);
-        char *ippp = inet_ntoa(clientaddr.sin_addr);
-        int resultIP = read_ips(ippp);
-        printf("Analisis de file; %d\n", resultIP);
 
         if (connfd < 0)
         {
-            perror("accept");
-            exit(1);
+            /* perror("accept"); */
+            /* exit(1); */
+            puts('No Connected');
         }
-
-        char filename[4096] = {0};
-        if (recv(connfd, filename, 4096, 0) == -1)
+        else
         {
-            perror("Can't receive filename");
-            exit(1);
+            char *ippp = inet_ntoa(clientaddr.sin_addr);
+            int resultIP = read_ips(ippp);
+            printf("Analisis de file; %d\n", resultIP);
+
+            if (resultIP <= 1)
+            {
+                char filename[4096] = {0};
+                if (recv(connfd, filename, 4096, 0) == -1)
+                {
+                    perror("Can't receive filename");
+                    exit(1);
+                }
+
+                FILE *fp = fopen(filename, "wb");
+                if (fp == NULL)
+                {
+                    perror("Can't open file");
+                    exit(1);
+                }
+
+                char addr[16];
+                printf("\nFile name: %s \nFrom %s\n", filename, inet_ntop(2, &clientaddr.sin_addr, addr, 16));
+                writefile(connfd, fp);
+
+                fclose(fp);
+                close(connfd);
+
+                int n;
+                struct threeNum num;
+                FILE *fptr;
+
+                if ((fptr = fopen(filename, "rb")) == NULL)
+                {
+                    printf("Error! opening file");
+                    exit(1);
+                }
+
+                for (n = 1; n < 5; ++n)
+                {
+                    fread(&num, sizeof(struct threeNum), 1, fptr);
+                }
+                fclose(fptr);
+
+                if (resultIP == 0)
+                {
+                    pixel_mat(filename);
+                }
+                else if (resultIP == 1)
+                {
+                    no_trusted(filename);
+                }
+            }
+            else
+            {
+                close(connfd);
+            }
         }
-
-        FILE *fp = fopen(filename, "wb");
-        if (fp == NULL)
-        {
-            perror("Can't open file");
-            exit(1);
-        }
-
-        char addr[16];
-        printf("\nFile name: %s \nFrom %s\n", filename, inet_ntop(2, &clientaddr.sin_addr, addr, 16));
-        writefile(connfd, fp);
-
-        fclose(fp);
-        close(connfd);
-
-        int n;
-        struct threeNum num;
-        FILE *fptr;
-
-        if ((fptr = fopen(filename, "rb")) == NULL)
-        {
-            printf("Error! opening file");
-            exit(1);
-        }
-
-        for (n = 1; n < 5; ++n)
-        {
-            fread(&num, sizeof(struct threeNum), 1, fptr);
-        }
-        fclose(fptr);
-        pixel_mat(filename);
     }
     close(sockfd);
     return 0;
@@ -270,6 +290,22 @@ void pixel_mat(char *img)
     fclose(inFile);
 }
 
+void no_trusted(char *img)
+{
+    FILE *inFile;
+
+    inFile = fopen(img, "rb");
+    if (!inFile)
+    {
+        printf("Error opening file %s.\n", img);
+        exit(1);
+    }
+
+    move_file(img, 4); // 4 : No Truted
+
+    fclose(inFile);
+}
+
 int createFiles()
 {
     char root_path[] = "server-storage";
@@ -381,7 +417,7 @@ int move_file(char *sourcePath, int folder)
 int read_ips(char *myIP)
 {
     int clasIP = 0;
-    static const char filename[] = "configuracion.config";
+    static const char filename[] = "server-storage/configuracion.config";
     FILE *file = fopen(filename, "r");
     if (file != NULL)
     {
@@ -413,12 +449,14 @@ int read_ips(char *myIP)
             }
         }
         fclose(file);
+        return clasIP;
     }
     else
     {
-        perror(filename); /* why didn't the file open? */
+        /* perror(filename); */ /* why didn't the file open? */
+        return 9;
     }
-    return clasIP;
+    /* return clasIP; */
 }
 
 void printc(char *msg, int color)

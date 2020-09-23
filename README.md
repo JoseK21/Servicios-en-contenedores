@@ -56,3 +56,12 @@ Servicios en contenedores
 ### Estructura de configuracion.config
     La lista de ips se separan por lineas en blanco, cada item de una lista de ips se divide unicamente por salto de linea.
     Es necesario dejar mas de 2 saltos de lineas al final del file, ya que es necesario para determinar cuando la ip no existe en lo absoluto
+
+-----------------------------------
+    ips_send_image
+
+    ips_trusted
+
+    ips_no_connected
+    
+-----------------------------------
