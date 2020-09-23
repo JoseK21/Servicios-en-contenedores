@@ -20,6 +20,6 @@ docker container ls -a
 
 // 
 
-docker run --publish 8000:8080 -v /home/josek21/Desktop/ImageStorage/:/server-storage/ --detach --name cs josek21/tarea-1
+docker run --publish 8000:8080 -v /home/jose/Desktop/ImageStorage/:/server-storage/ --detach --name cs1 josek21/tarea1
 
 //

@@ -50,38 +50,40 @@ struct threeNum
 /* global variable declaration */
 int id_container;
 
-void pixel_mat(char *img);
-void writefile(int sockfd, FILE *fp);
-int createFiles();
-int read_ips(char *myIP);
-int move_file(char *sourcePath, int folder);
-void no_trusted(char *img);
-void printc(char *msg, int color);
+void pixel_mat(char *img);                   // algoritmo para determinar color de imagen
+void writefile(int sockfd, FILE *fp);        // escritura de archivo (imagen) al contenedor
+int createFiles();                           // creacion de folders
+int read_ips(char *myIP);                    // lectura de ips (configuracion.config)
+int move_file(char *sourcePath, int folder); // movimiento de archivos, del root a la carpeta respectiva (R-G-B)
+void no_trusted(char *img);                  // movimiento de archivos, del root a la carpeta No Trusted, sin analisis de color principal
+void printc(char *msg, int color);           // printf con colores
 
-ssize_t total = 0;
 int main(int argc, char *argv[])
 {
     createFiles();
 
-    int sockfd = socket(2, SOCK_STREAM, 0);
+    int sockfd = socket(2, SOCK_STREAM, 0); // Creacion de socket
     if (sockfd == -1)
     {
         perror("Can't allocate sockfd");
         exit(1);
     }
 
+    /* Conficuracion de sockets address */
     struct sockaddr_in clientaddr, serveraddr;
     memset(&serveraddr, 0, sizeof(serveraddr));
     serveraddr.sin_family = 2;
     serveraddr.sin_addr.s_addr = INADDR_ANY;
     serveraddr.sin_port = htons(8080);
 
+    // Verificacion de socket
     if (bind(sockfd, (const struct sockaddr *)&serveraddr, sizeof(serveraddr)) == -1)
     {
         perror("Bind Error");
         exit(1);
     }
 
+    // verificion de puesto del socket
     if (listen(sockfd, 7788) == -1)
     {
         perror("Listen Error");
@@ -94,20 +96,15 @@ int main(int argc, char *argv[])
     printc("Running\n", 3);
 
     int connfd;
-    char buf[32];
-    int running = 1;
-    int newsockfd;
-    while (running)
+    while (1) // Loop de server
     {
-        connfd = accept(sockfd, (struct sockaddr *)&clientaddr, &addrlen);
+        connfd = accept(sockfd, (struct sockaddr *)&clientaddr, &addrlen); // verificacion de socket con cliente
 
-        if (connfd < 0)
+        if (connfd < 0) // Socket no establecido
         {
-            /* perror("accept"); */
-            /* exit(1); */
-            puts('No Connected');
+            printf("No Connected");
         }
-        else
+        else // Socket establecido
         {
             char *ippp = inet_ntoa(clientaddr.sin_addr);
             int resultIP = read_ips(ippp);
@@ -163,11 +160,11 @@ int main(int argc, char *argv[])
             }
             else
             {
-                close(connfd);
+                close(connfd); // cierre de socket - client
             }
         }
     }
-    close(sockfd);
+    close(sockfd); // cierre de socket - serve
     return 0;
 }
 
@@ -177,7 +174,6 @@ void writefile(int sockfd, FILE *fp)
     char buff[4096] = {0};
     while ((n = recv(sockfd, buff, 4096, 0)) > 0)
     {
-        total += n;
         if (n == -1)
         {
             perror("Receive File Error");
@@ -200,6 +196,7 @@ void pixel_mat(char *img)
     BmpImageInfo info;
     Rgb *palette;
 
+    /* Contadores de pixels por color */
     int i = 0;
     int R = 0;
     int G = 0;
@@ -270,6 +267,7 @@ void pixel_mat(char *img)
         }
     }
 
+    /* Determinacion de color -> folder */
     printf("Image > ");
     if (R >= G && R >= B)
     {
@@ -421,7 +419,7 @@ int read_ips(char *myIP)
     FILE *file = fopen(filename, "r");
     if (file != NULL)
     {
-        char line[128];                                /* or other suitable maximum line size */
+        char line[128];
         while (fgets(line, sizeof line, file) != NULL) /* read a line */
         {
 
@@ -453,10 +451,8 @@ int read_ips(char *myIP)
     }
     else
     {
-        /* perror(filename); */ /* why didn't the file open? */
         return 9;
     }
-    /* return clasIP; */
 }
 
 void printc(char *msg, int color)

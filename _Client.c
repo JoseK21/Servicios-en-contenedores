@@ -17,25 +17,21 @@
 
 #endif //TRANSFER_FILE_TRANSFER_H
 
-void sendfile(FILE *fp, int sockfd);
-void printc(char *msg, int color);
+void sendfile(FILE *fp, int sockfd); // Envio de data al server
+void printc(char *msg, int color);   // printf con color
 
-ssize_t total = 0;
 int main(int argc, char *argv[])
 {
-
     if (argc != 2)
     {
-        printc(">>>>", 4);
         puts("Usage: ./client <IPaddress>");
-
         exit(1);
     }
 
     while (1)
     {
         char path_img[100];
-        printc("Enter your image path: ", 5);
+        printc("Enter your image path: ", 5); // Solicitud de parematro (image path)
         scanf("%s", path_img);
 
         if (strcmp(path_img, "fin") == 0)
@@ -50,24 +46,25 @@ int main(int argc, char *argv[])
             exit(1);
         }
 
+        /* Configuracion de socket */
         struct sockaddr_in serveraddr;
         memset(&serveraddr, 0, sizeof(serveraddr));
         serveraddr.sin_family = AF_INET;
         serveraddr.sin_addr.s_addr = inet_addr("127.0.0.1");
         serveraddr.sin_port = htons(8000);
-        if (inet_pton(AF_INET, argv[1], &serveraddr.sin_addr) < 0)
+        if (inet_pton(AF_INET, argv[1], &serveraddr.sin_addr) < 0) // verificacion de address server
         {
             perror("IPaddress Convert Error");
             exit(1);
         }
 
-        if (connect(sockfd, (const struct sockaddr *)&serveraddr, sizeof(serveraddr)) < 0)
+        if (connect(sockfd, (const struct sockaddr *)&serveraddr, sizeof(serveraddr)) < 0) // verificacion de socket server
         {
             perror("Connect Error");
             exit(1);
         }
 
-        char *filename = basename(path_img);
+        char *filename = basename(path_img); // archivo - imagen
         if (filename == NULL)
         {
             perror("Can't get filename");
@@ -89,7 +86,7 @@ int main(int argc, char *argv[])
             exit(1);
         }
 
-        sendfile(fp, sockfd);
+        sendfile(fp, sockfd); // envio de data
         printc("Done\n", 3);
         fclose(fp);
         close(sockfd);
@@ -104,7 +101,6 @@ void sendfile(FILE *fp, int sockfd)
     char sendline[MAX_LINE] = {0};
     while ((n = fread(sendline, sizeof(char), MAX_LINE, fp)) > 0)
     {
-        total += n;
         if (n != MAX_LINE && ferror(fp))
         {
             perror("Read File Error");
@@ -159,5 +155,3 @@ void printc(char *msg, int color)
         printf("\033[0m");
     }
 }
-
-// configuracion.config
